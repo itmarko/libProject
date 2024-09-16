@@ -62,9 +62,13 @@ public class UserService implements IUserService {
     }
     @Override
     public UserModel getUserModelByUserNameOrEmail(String userNameOrEmail) throws UserNotFoundException {
+        if (userNameOrEmail == null || userNameOrEmail.isEmpty()) {
+            throw new IllegalArgumentException("UserName or Email cannot be null or empty");
+        }
         return userRepo.findByUserNameOrEmail(userNameOrEmail, userNameOrEmail)
             .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
+
 
 
     @Override

@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import bg from "../../assets/bg-image.jpg";
 import { useState } from "react";
 import axios from "axios";
 
 function Registration() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     userName: "",
     fullName: "",
@@ -39,6 +40,8 @@ function Registration() {
       );
       console.log("Registration successful:", response.data);
       alert("Registration successful");
+      navigate("/log-in")
+
     } catch (error) {
       console.error(
         "Registration failed:",
