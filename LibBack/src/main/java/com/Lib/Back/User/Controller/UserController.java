@@ -1,5 +1,6 @@
 package com.Lib.Back.User.Controller;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,48 +37,43 @@ public class UserController {
         }
 
         try {
-            // Encode and save user
-            String encodedPassword = passwordEncoder.encode(userModel.getPassWord());
-            userModel.setPassWord(encodedPassword);
-
+            // Add user model through service
             UserModel newUser = userService.addUserModel(userModel);
             return ResponseEntity.ok(newUser);
         } catch (UserAlreadyExistsException | EmailAlreadyExistsException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
     }
 
 
+    
     @PostMapping("/log-in")
     public ResponseEntity<?> loginUser(@RequestBody UserModel userModel) {
         try {
-            // Validate input
-            if (userModel.getUserName() == null || userModel.getUserName().isEmpty() &&
-                userModel.getEmail() == null || userModel.getEmail().isEmpty() ||
+            if (userModel.getUserName() == null || userModel.getUserName().isEmpty() ||
                 userModel.getPassWord() == null || userModel.getPassWord().isEmpty()) {
-                return ResponseEntity.badRequest().body("Username, email, and password cannot be null or empty");
+                return ResponseEntity.badRequest().body("Username and password cannot be null or empty");
             }
 
-            // Retrieve user by username or email
-            UserModel existingUser = userService.getUserModelByUserNameOrEmail(userModel.getUserName(), userModel.getEmail());
+            UserModel existingUser = userService.getUserModelByUserNameOrEmail(userModel.getUserName());
 
-            // Check if user exists and password matches
             if (existingUser != null && passwordEncoder.matches(userModel.getPassWord(), existingUser.getPassWord())) {
-                // Generate a token or some response on successful login
-                // String token = generateToken(existingUser); // Example
+                // Authentication successful
                 return ResponseEntity.ok("Login successful");
             } else {
+                // Authentication failed
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
             }
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            // Use a logger instead of printStackTrace for better logging management
-
+            // Log the exception for debugging
+            LoggerFactory.getLogger(UserController.class).error("An error occurred during login", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
     }
+
 
 }

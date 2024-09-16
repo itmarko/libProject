@@ -11,7 +11,7 @@ public interface IUserService {
 
     UserModel updateUserModel(UserModel userModel, String userName);
 
-    UserModel getUserModelByUserNameOrEmail(String identifier, String string);
+    UserModel getUserModelByUserNameOrEmail(String userNameOrEmail);
 
     void deleteUserModel(Long id);  // Corrected to use Long id instead of String userName
 }

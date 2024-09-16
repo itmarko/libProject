@@ -41,6 +41,7 @@ public class UserService implements IUserService {
             throw new EmailAlreadyExistsException("User already exists with email: " + userModel.getEmail());
         }
 
+        // Encode password
         String encodedPassword = passwordEncoder.encode(userModel.getPassWord());
         userModel.setPassWord(encodedPassword);
 
@@ -59,12 +60,12 @@ public class UserService implements IUserService {
             return userRepo.save(userExist);
         }).orElseThrow(() -> new UserNotFoundException("This user could not be found"));
     }
-
     @Override
-    public UserModel getUserModelByUserNameOrEmail(String identifier, String string) throws UserNotFoundException {
-        return userRepo.findByUserNameOrEmail(identifier, identifier)
-                .orElseThrow(() -> new UserNotFoundException("User not found with identifier: " + identifier));
+    public UserModel getUserModelByUserNameOrEmail(String userNameOrEmail) throws UserNotFoundException {
+        return userRepo.findByUserNameOrEmail(userNameOrEmail, userNameOrEmail)
+            .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
+
 
     @Override
     public void deleteUserModel(Long id) {
